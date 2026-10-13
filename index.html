@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大唐四人行：我喜歡你，你卻喜歡他</title>
+<style>
+body { background: #f4efe6; color: #2c2226; font-family: "PingFang TC","Noto Sans TC","Microsoft JhengHei","Heiti TC",sans-serif; line-height: 1.6; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 24px; }
+h1 { margin: 0 0 6px; font-size: 32px; color: #7a2e22; font-weight: 700; }
+.sm { font-size: 14px; color: #6b5d63; margin: 4px 0; }
+button { font: inherit; font-size: 14px; padding: 8px 16px; border: 1px solid #d2c8b3; background: #fff; border-radius: 10px; cursor: pointer; transition: all .2s ease; font-weight: 500; }
+button:hover { background: #eae2d0; transform: translateY(-1px); }
+#g { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; margin-top: 24px; }
+.cd { background: #fff; border: 1px solid #dfd7c2; border-radius: 18px; padding: 16px; box-shadow: 0 6px 16px rgba(44,34,38,0.04); transition: transform .2s ease; display: flex; flex-direction: column; justify-content: space-between; }
+.cd:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(44,34,38,0.08); }
+.hd { display: flex; justify-content: space-between; align-items: center; font-weight: 600; margin-bottom: 10px; color: #5c4a52; font-size: 15px; }
+.sv { cursor: zoom-in; border-radius: 12px; overflow: hidden; border: 1px solid #eee5d0; background: #fffdfa; }
+.sv svg { width: 100%; height: auto; display: block; }
+.nt { font-size: 13px; color: #6b5d63; margin-top: 10px; background: #f9f5ed; padding: 8px 12px; border-radius: 8px; border-left: 3px solid #7a2e22; }
+#ov { display: none; position: fixed; inset: 0; background: rgba(28,21,24,0.92); flex-direction: column; align-items: center; justify-content: center; z-index: 99; padding: 20px; }
+#ovs svg { width: min(78vh, 90vw); height: auto; display: block; border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,0.5); }
+#ovb { margin-top: 16px; color: #fff; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+#ovb button { background: rgba(255,255,255,0.92); color: #2c2226; border: none; }
+#ovb button:hover { background: #fff; }
+#msg-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100; }
+#msg-content { background: #fff; padding: 24px 32px; border-radius: 16px; max-width: 420px; text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+
+header{margin-bottom:24px}.bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px}.row{display:flex;gap:8px;flex-wrap:wrap}
+.pri{background:#92400e;color:#fff;border-color:#78350f;font-weight:700;padding:8px 20px}.pri:hover{background:#78350f}
+#msg-text{margin:0 0 20px;font-size:18px;font-weight:500}#msg-close{background:#92400e;color:#fff;padding:8px 24px;border-radius:12px}
+#ovn{padding:0 12px;font-weight:500;font-size:18px}
+#ovt{max-width:min(92vw,720px);margin-top:12px;color:#f3eadb;font-size:15px;line-height:1.7;text-align:center;max-height:18vh;overflow:auto}
+#vs{font-size:13px;color:#b45309;margin:6px 0 0}
+#ovs svg{width:min(60vh,92vw)!important;box-shadow:none!important}
+.cd{content-visibility:auto;contain-intrinsic-size:420px 520px}
+.sv{min-height:200px}
+button.on{background:#92400e;color:#fff;border-color:#78350f}
+@media (hover:none){button:hover{background:#fff;transform:none}.cd:hover{transform:none;box-shadow:0 6px 16px rgba(44,34,38,0.04)}.cd,button{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="bar">
+    <div>
+      <h1>大唐四人行：我喜歡你，你卻喜歡他</h1>
+      <p class="sm">李白・杜甫・孟浩然・王維｜教學簡報（標註【史料】【傳聞】【推論】【戲說】）。點圖片放大簡報模式（方向鍵換頁、Esc關閉）。</p>
+    </div>
+    <div class="row">
+      <button id="bplay" class="pri">▶ 全螢幕播放（含旁白）</button>
+      <button id="ball">下載全部 PNG</button>
+    </div>
+  </div>
+<p id="vs"></p>
+</header>
+<main id="g"></main>
+</div>
+
+<div id="ov">
+<div id="ovs"></div>
+<div id="ovt"></div>
+<div id="ovb">
+  <button id="op">上一張 (←)</button>
+  <span id="ovn"></span>
+  <button id="on">下一張 (→)</button>
+  <button id="od">下載此頁 PNG</button>
+  <button id="osp">🔊 旁白：開</button>
+  <button id="oau">自動換頁：開</button>
+  <button id="ox">關閉 (Esc)</button>
+</div>
+</div>
+
+<div id="msg-modal">
+  <div id="msg-content">
+    <p id="msg-text"></p>
+    <button id="msg-close">確定</button>
+  </div>
+</div>
+
+<script>
+var FF="'Noto Sans TC','PingFang TC','Microsoft JhengHei','Heiti TC',sans-serif";
+var INK='#4a353f', MUTE='#7d6b73';
+var CO={du:'#e68a2c', li:'#2b2859', me:'#a82024', wa:'#2e8b3a'};
+var DK={du:'#b56810', li:'#2b2859', me:'#a82024', wa:'#236b2d'};
+var MO={smile:'M-5 18q2.5 4 5 0q2.5 4 5 0', flat:'M-6 20h12', open:'M-8 16Q0 28 8 16', worry:'M-8 24Q0 15 8 24'};
+
+function T(x,y,s,z,f,w,a){
+  return '<text x="'+x+'" y="'+y+'" font-size="'+z+'" fill="'+(f||INK)+'" font-weight="'+(w||400)+'" text-anchor="'+(a||'middle')+'" font-family="'+FF+'">'+s+'</text>';
+}
+function L(x,y,arr,z,gap,f,w,a){
+  var o='';for(var i=0;i<arr.length;i++){o+=T(x,y+i*gap,arr[i],z,f,w,a);}return o;
+}
+function CardAvatar(x,y,s,k,m){
+  var c=CO[k],sw=Math.max(2.5,2.2/s).toFixed(1);
+  return '<g transform="translate('+x+','+y+') scale('+s+')" fill="#fffcf5" stroke="'+c+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round">'+
+    '<rect x="-42" y="-45" width="84" height="96" rx="24" fill="#fffdfa" stroke="'+c+'" stroke-width="'+sw+'"/>'+
+    '<circle cx="-16" cy="-8" r="10"/><circle cx="16" cy="-8" r="10"/><path d="'+MO[m||'smile']+'" fill="none"/>'+
+    '<path d="M-36 -32Q0 -44 36 -32" fill="none" stroke-linecap="round"/>'+
+  '</g>';
+}
+function Badge(x,y,text,bg,fg){
+  return '<g transform="translate('+x+','+y+')"><rect x="-140" y="-18" width="280" height="36" rx="10" fill="'+bg+'"/><text x="0" y="6" font-size="15" fill="'+(fg||'#fff')+'" font-weight="600" text-anchor="middle" font-family="'+FF+'">'+text+'</text></g>';
+}
+function Arrow(x1,y1,x2,y2,c,d){
+  var a=Math.atan2(y2-y1,x2-x1),h=12;
+  function hd(x,y,t){return '<path d="M'+(x-h*Math.cos(t-0.45)).toFixed(1)+' '+(y-h*Math.sin(t-0.45)).toFixed(1)+'L'+x+' '+y+'L'+(x-h*Math.cos(t+0.45)).toFixed(1)+' '+(y-h*Math.sin(t+0.45)).toFixed(1)+'" fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';}
+  return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="2.5" stroke-linecap="round"'+(d?' stroke-dasharray="'+d+'"':'')+'/>'+hd(x2,y2,a);
+}
+function Frame(inner){return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 680" width="680" height="680"><rect width="680" height="680" fill="#fcf9f2"/><rect x="24" y="24" width="632" height="632" rx="16" fill="none" stroke="#e8dfcb" stroke-width="2"/>'+inner+'</svg>';}
+function FooterTag(s){return T(340,644,s,14,MUTE,500);}
+
+var S=[];
+function add(t,svg,n){S.push({t:t,svg:svg,n:n});}
+
+// 1. 封面
+add('封面',Frame(
+  T(340,120,'大唐四人行',48,INK,700)+
+  T(340,175,'我喜歡你，你卻喜歡他',24,MUTE,500)+
+  '<g transform="translate(0,60)">'+
+    CardAvatar(110,240,.9,'du','smile')+CardAvatar(250,240,.9,'li','smile')+CardAvatar(390,240,.9,'me','flat')+CardAvatar(530,240,.9,'wa','smile')+
+    T(110,335,'杜甫',20,DK.du,600)+T(250,335,'李白',20,DK.li,600)+T(390,335,'孟浩然',20,DK.me,600)+T(530,335,'王維',20,DK.wa,600)+
+  '</g>'+
+  Badge(340,460,'如果唐朝有私訊，誰會已讀不回？','#7a2e22','#fff')+
+  T(340,540,'#盛唐詩人的愛恨情仇（給國中生版）',15,MUTE)
+),'開場：先讓學生猜，如果唐朝有私訊，誰會已讀不回？');
+
+// 2. 假趣事：李白考試不及格
+add('假趣事：李白考試不及格',Frame(
+  T(340,70,'#你不知道也不存在的古人趣事',15,MUTE)+
+  T(340,135,'李白很常考試不及格？',32,INK,700)+
+  T(340,180,'因為他「字太白」看不到＝＝',24,INK,500)+
+  '<rect x="210" y="215" width="260" height="40" rx="8" fill="#fde8e8" stroke="#a82024" stroke-width="2"/>'+
+  T(340,241,'【戲說】（網路諧音梗）',16,'#a82024',600)+
+  CardAvatar(340,340,1.1,'li','open')+
+  '<line x1="80" y1="420" x2="600" y2="420" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,460,'【史實】李白一生根本沒進過考場',26,'#236b2d',700)+
+  L(110,505,['理由說法不一：商人之子身份限制／家族曾因罪遷徙。','他走的是名流「舉薦」路線！'],16,28,MUTE,400,'left')+
+  FooterTag('假趣事破題 vs 史實解密')
+),'破題：講完假趣事點出真相。李白一生未科舉，走的是舉薦路線。');
+
+// 3. 李白組成圖
+add('李白組成圖',Frame(
+  T(340,70,'成分分析大揭密',22,MUTE,600)+
+  T(340,130,'詩仙李白的靈魂組成',30,INK,700)+
+  '<g transform="translate(340,300)">'+
+    '<path d="M 0 0 L 130 0 A 130 130 0 1 1 -39 -124 Z" fill="#2b2859"/>'+
+    '<path d="M 0 0 L -39 -124 A 130 130 0 0 1 76 -105 Z" fill="#e68a2c"/>'+
+    '<path d="M 0 0 L 76 -105 A 130 130 0 0 1 130 0 Z" fill="#2e8b3a"/>'+
+    '<circle cx="0" cy="0" r="40" fill="#fffdfa"/>'+
+  '</g>'+
+  T(430,340,'美酒 70%',16,'#fff',600)+
+  T(300,210,'明月 20%',15,'#fff',600)+
+  T(410,210,'劍術 10%',15,'#fff',600)+
+  T(340,500,'（總和 100% 標註，無氣體鋪墊版）',16,MUTE)+
+  Badge(340,550,'【戲說】豪飲狂歌、浪漫至極的性格肖像','#5c4a52','#fff')+
+  FooterTag('成分分析趣圖')
+),'李白組成圓餅圖，改標總和100%（酒70%+月20%+劍10%）。');
+
+// 4. 李白 x 孟浩然
+add('李白 x 孟浩然',Frame(
+  T(340,70,'前輩與迷弟的初相遇',22,MUTE,600)+
+  CardAvatar(210,200,1.2,'li','smile')+CardAvatar(470,200,1.2,'me','flat')+
+  Arrow(275,180,405,180,'#7a2e22','6 6')+
+  T(340,165,'崇拜與追求',15,'#7a2e22',600)+
+  T(210,285,'李白（20多歲）',18,DK.li,600)+T(470,285,'孟浩然（大一輪前輩）',18,DK.me,600)+
+  '<rect x="80" y="330" width="520" height="180" rx="14" fill="#fff" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,365,'【襄陽相識】',16,MUTE,600)+
+  T(340,395,'20多歲的李白，在襄陽認識了大一輪的孟浩然',17,INK,600)+
+  T(340,435,'〈贈孟浩然〉【史料】：',16,MUTE,600)+
+  T(340,470,'「吾愛孟夫子，風流天下聞」',22,DK.li,700)+
+  FooterTag('【史料】襄陽相識與詩句原文')
+),'20多歲的李白，在襄陽認識大一輪的孟浩然。');
+
+// 5. 按照詩詞圈的慣例
+add('按照詩詞圈的慣例',Frame(
+  T(340,80,'文人圈的禮尚往來',22,MUTE,600)+
+  CardAvatar(340,220,1.5,'li','smile')+
+  T(340,350,'按照唐代詩詞圈的慣例',30,INK,700)+
+  T(340,400,'大家互相贈詩是社交大傳統，回不回又是另一回事！',20,MUTE)+
+  Badge(340,480,'【專家解析】沒回詩不等於冷漠或沒交情','#5c4a52','#fff')+
+  T(340,540,'古人也常透過口頭、書信或見面切磋交流',16,MUTE)+
+  FooterTag('【史料】社交文化背景')
+),'說明唐代互相贈詩是傳統，沒留下回詩不代表沒感情。');
+
+// 6. 李白對孟浩然：更慘
+add('李白對孟浩然：更慘',Frame(
+  T(340,70,'單向奔赴的熱情',22,MUTE,600)+
+  T(340,135,'李白：寫了黃鶴樓名篇送別',26,DK.li,700)+
+  '<rect x="100" y="180" width="480" height="190" rx="16" fill="#fff" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,215,'〈黃鶴樓送孟浩然之廣陵〉【史料】',18,INK,600)+
+  T(340,255,'「故人西辭黃鶴樓，煙花三月下揚州。」',20,DK.li,700)+
+  T(340,295,'「孤帆遠影碧空盡，唯見長江天際流。」',20,DK.li,700)+
+  T(340,340,'（樓上注視船影消失，久久不願離開）',15,MUTE)+
+  CardAvatar(340,460,1.1,'me','flat')+
+  T(340,545,'但孟浩然集中卻找不出明確的回贈詩！',18,MUTE)+
+  FooterTag('【史料】名篇賞析　【戲說】單戀已讀不回')
+),'賞析黃鶴樓送別，並呈現「單向奔赴」的趣味對比。');
+
+// 7. 孟浩然一首都沒給他
+add('孟浩然一首都沒給他',Frame(
+  T(340,80,'歷史的空白與想像',22,MUTE,600)+
+  CardAvatar(340,230,1.6,'li','worry')+
+  T(340,360,'孟浩然一首都沒回給他？',30,INK,700)+
+  T(340,410,'【待查證】現存孟浩然集中，未見明確回贈李白之作',18,MUTE)+
+  Badge(340,490,'【推論】可能作品遺失，或當面口頭酬答','#a82024','#fff')+
+  FooterTag('【待查證】學術保留說明')
+),'特別標註【待查證】，保留學術討論空間。');
+
+// 8. 這位是杜子美
+add('這位是杜子美',Frame(
+  T(340,80,'新成員登場',22,MUTE,600)+
+  CardAvatar(340,240,1.8,'du','smile')+
+  T(340,380,'這位是杜子美',34,INK,700)+
+  T(340,430,'也就是後來的「詩聖」・杜甫（712–770）',22,MUTE)+
+  T(340,480,'遇見李白時，他還只是一位默默無聞的年輕後進',18,INK)+
+  FooterTag('【史料】人物介紹')
+),'介紹杜甫姓名、字號與歷史地位。');
+
+// 9. 公元 744 年
+add('公元 744 年',Frame(
+  T(340,70,'命運的雙子星交會',22,MUTE,600)+
+  T(340,125,'洛陽相遇：星空璀璨的交會',30,INK,700)+
+  '<g transform="translate(0,20)">'+
+    CardAvatar(210,230,1.2,'du','smile')+CardAvatar(470,230,1.2,'li','smile')+
+    Arrow(275,210,405,210,'#7a2e22')+
+  '</g>'+
+  T(210,325,'33 歲 杜甫（追星）',20,DK.du,700)+
+  T(470,325,'45 歲 李白（明星）',20,DK.li,700)+
+  '<rect x="80" y="380" width="520" height="150" rx="14" fill="#fff" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,420,'33歲的杜甫（追星），遇見45歲的李白（明星）',20,DK.du,700)+
+  T(340,465,'開啟了文學史上最傳奇的一段情誼！',18,INK,600)+
+  FooterTag('【史料】洛陽相遇年齡與角色關係')
+),'33歲的杜甫（追星），遇見45歲的李白（明星）。');
+
+// 10. 只見面三次
+add('只見面三次',Frame(
+  T(340,70,'短暫卻震撼一生的交集',22,MUTE,600)+
+  T(340,130,'李白和杜甫一生只見面三次！',30,INK,700)+
+  '<rect x="80" y="170" width="520" height="100" rx="14" fill="#fff" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,210,'【三次同遊路線】',18,DK.li,600)+
+  T(340,245,'744 洛陽相遇 ➔ 梁宋同遊（與高適） ➔ 745 齊魯再聚',18,INK,700)+
+  L(110,320,[
+    '【史料】〈與李十二白同尋范十隱居〉：',
+    '「醉眠秋共被，攜手日同行」——好到蓋同一條被子！',
+    '【趣事】李白帶杜甫找范居士卻迷路摔進蒼耳叢，',
+    '還寫詩怪蒼耳「欺負」他！'
+  ],17,32,INK,400,'left')+
+  FooterTag('【史料】同遊路線與同床共被軼事')
+),'呈現洛陽-梁宋-齊魯路線，並加入尋范十隱居迷路摔蒼耳的趣事。');
+
+// 11. 杜甫超級想李白
+add('杜甫超級想李白',Frame(
+  T(340,80,'迷弟的瘋狂思念',22,MUTE,600)+
+  CardAvatar(340,220,1.6,'du','worry')+
+  T(340,350,'杜甫真的超級想念李白！',32,INK,700)+
+  T(340,405,'「白兄白兄白兄～你現在到底在哪裡呀！」',20,DK.du,600)+
+  Badge(340,475,'【戲說】（真情實感寫進十多首詩裡）','#5c4a52','#fff')+
+  FooterTag('【戲說】迷弟內心小劇場')
+),'誇張幽默表達杜甫對李白綿延不絕的思念。');
+
+// 12. 杜甫 x 李白
+add('杜甫 x 李白',Frame(
+  T(340,70,'年下迷弟的真情告白',22,MUTE,600)+
+  CardAvatar(210,210,1.1,'du','smile')+CardAvatar(470,210,1.1,'li','smile')+
+  Arrow(275,190,405,190,'#7a2e22','4 6')+
+  T(340,165,'迷弟 ➔ 大神',15,'#7a2e22',600)+
+  L(110,300,[
+    '〈春日憶李白〉：「白也詩無敵，飄然思不群。」',
+    '〈天末懷李白〉：「世人皆欲殺，吾意獨憐才。」',
+    '當全世界都質疑李白時，只有杜甫挺身相惜！'
+  ],18,36,INK,600,'left')+
+  T(340,440,'【專家看法】互贈詩是社交傳統，感情不以數量簡單衡量。',16,MUTE)+
+  FooterTag('【史料】杜甫護航詩句　【專家解析】')
+),'列出杜甫名句，並補上專家對互贈詩數量的客觀解析。');
+
+// 13. 杜甫大概在這
+add('杜甫大概在這',Frame(
+  T(340,70,'成分分析大揭密',22,MUTE,600)+
+  T(340,130,'詩聖杜甫的靈魂組成',30,INK,700)+
+  '<g transform="translate(340,300)">'+
+    '<path d="M 0 0 L 130 0 A 130 130 0 1 1 -124 -39 Z" fill="#e68a2c"/>'+
+    '<path d="M 0 0 L -124 -39 A 130 130 0 0 1 0 -130 Z" fill="#2b2859"/>'+
+    '<path d="M 0 0 L 0 -130 A 130 130 0 0 1 130 0 Z" fill="#a82024"/>'+
+    '<circle cx="0" cy="0" r="40" fill="#fffdfa"/>'+
+  '</g>'+
+  T(420,340,'國計民生 60%',16,'#fff',600)+
+  T(280,210,'想念李白 25%',15,'#fff',600)+
+  T(410,210,'憂國憂民 15%',15,'#fff',600)+
+  T(340,500,'（總和 100% 標註，獨立笑點版）',16,MUTE)+
+  Badge(340,550,'【戲說】寫實派詩聖的內心世界','#5c4a52','#fff')+
+  FooterTag('成分分析趣圖')
+),'杜甫組成圓餅圖，改標總和100%（民生60%+想李白25%+憂國15%）。');
+
+// 14. 贈李白
+add('贈李白',Frame(
+  T(340,70,'杜甫〈贈李白〉作品賞析',22,MUTE,600)+
+  L(110,135,[
+    '二年客東都，所歷厭機巧。野人對羶腥，蔬食常不飽。',
+    '豈無青精飯，使我顏色好。苦乏大藥資，山林跡如掃。',
+    '李侯金閨彥，脫身事幽討。亦有梁宋遊，方期拾瑤草。'
+  ],16,30,INK,400,'left')+
+  '<rect x="90" y="340" width="500" height="135" rx="12" fill="#fff" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,375,'【白話意譯】（教師自主翻譯）',16,DK.du,600)+
+  T(340,410,'我在洛陽生活困頓厭倦官場，想採藥修道卻缺錢；',17,INK,500)+
+  T(340,440,'聽闻李兄離開宮廷尋仙，期待能隨你一起去梁宋採仙草！',17,INK,500)+
+  FooterTag('【史料】詩句原文　【自主意譯】')
+),'杜甫〈贈李白〉詩句賞析與白話意譯。');
+
+// 15. 杜甫寫給李白的詩
+add('杜甫寫給李白的詩',Frame(
+  T(340,70,'迷弟的驚人產量',22,MUTE,600)+
+  L(120,130,[
+    '• 〈贈李白〉（二年客東都）',
+    '• 〈贈李白〉（秋來相顧尚飄蓬）',
+    '• 〈與李十二白同尋范十隱居〉',
+    '• 〈飲中八仙歌〉、〈冬日有懷李白〉',
+    '• 〈春日憶李白〉、〈天末懷李白〉',
+    '• 〈送孔巢父謝病歸遊江東，兼呈李白〉',
+    '• 〈夢李白二首〉、〈不見〉等'
+  ],15,28,INK,400,'left')+
+  Badge(340,450,'【數量說明】主流說法專寫李白約 11 首','#7a2e22','#fff')+
+  T(340,510,'講義寫「二十幾首」是指「內文提及或詩名相關」的總數，兩說可並列。',15,MUTE)+
+  FooterTag('【史料】作品篇目與數量並列說明')
+),'列出杜甫寫給李白的篇目，說明「主流約11首」與「提及二十幾首」併存原因。');
+
+// 16. 李白送給杜甫的詩
+add('李白送給杜甫的詩',Frame(
+  T(340,80,'浪漫派的回信',22,MUTE,600)+
+  CardAvatar(340,220,1.5,'li','smile')+
+  T(340,350,'李白明確回贈杜甫的詩約有兩首',30,INK,700)+
+  T(340,405,'〈魯郡東石門送杜二甫〉與〈沙丘城下寄杜甫〉',20,DK.li,600)+
+  Badge(340,480,'【存疑】傳為李白作之〈戲贈杜甫〉真偽有爭議','#5c4a52','#fff')+
+  T(340,540,'（「飯顆山頭逢杜甫」多認為是後人偽託之作）',15,MUTE)+
+  FooterTag('【史料】可考作品　【存疑】戲贈杜甫')
+),'李白回贈詩說明，並標註〈戲贈杜甫〉為真偽存疑之作。');
+
+// 17. 魯郡東石門送杜二甫
+add('魯郡東石門送杜二甫',Frame(
+  T(340,70,'最後的同遊與離別',22,MUTE,600)+
+  L(210,130,[
+    '醉別復幾日，登臨遍池臺。',
+    '何時石門路，重有金樽開。',
+    '秋波落泗水，海色明徂徠。',
+    '飛蓬各自遠，且盡手中杯。'
+  ],18,36,INK,400,'left')+
+  '<rect x="110" y="380" width="460" height="90" rx="12" fill="#fff" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,415,'「飛蓬各自遠，且盡手中杯」',22,DK.li,700)+
+  T(340,448,'745 年齊魯告別，這是兩人一生中最後一次見面。',16,MUTE)+
+  FooterTag('【史料】李白〈魯郡東石門送杜二甫〉')
+),'賞析李白送別杜甫名句，註明此為兩人最後一次相見。');
+
+// 18. 沙丘城下寄杜甫
+add('沙丘城下寄杜甫',Frame(
+  T(340,70,'浩蕩江水般的思念',22,MUTE,600)+
+  L(210,130,[
+    '我來竟何事，高臥沙丘城。',
+    '城邊有古樹，日夕連秋聲。',
+    '魯酒不可醉，齊歌空復情。',
+    '思君若汶水，浩蕩寄南征。'
+  ],18,36,INK,400,'left')+
+  '<rect x="110" y="380" width="460" height="90" rx="12" fill="#fff" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,415,'「思君若汶水，浩蕩寄南征」',22,DK.li,700)+
+  T(340,448,'將對杜甫的思念化為浩蕩汶水，一路向南相伴！',16,MUTE)+
+  FooterTag('【史料】李白〈沙丘城下寄杜甫〉')
+),'賞析李白將思念化為汶水浩蕩南征的深情名句。');
+
+// 19. 孟浩然 x 王維
+add('孟浩然 x 王維',Frame(
+  T(340,70,'田園知音的悲劇結局',22,MUTE,600)+
+  CardAvatar(210,210,1.1,'me','flat')+CardAvatar(470,210,1.1,'wa','smile')+
+  Arrow(275,190,405,190,'#236b2d','4 6')+
+  T(340,165,'志趣相投 ➔ 知音',15,'#236b2d',600)+
+  L(70,300,[
+    '【史料】長安聯句：孟浩然吟「微雲淡河漢，疏雨滴梧桐」驚豔全場。',
+    '【史料】孟浩然落榜離京〈留別王維〉：「當路誰相假，知音世所稀。」',
+    '【史料】孟浩然過世後，王維寫下〈哭孟浩然〉：「故人不可見，漢水日東流。」',
+    '【傳聞】王維後將孟浩然畫像繪於刺史亭（浩然亭）。'
+  ],15,28,INK,400,'left')+
+  FooterTag('【史料】王孟知音交情　【戲說】BE 结局')
+),'王維與孟浩然長安聯句、留別與哭悼，描繪高山流水知音交情。');
+
+// 20. 李白 x 王維
+add('李白 x 王維',Frame(
+  T(340,70,'長安雙星・王不見王',22,MUTE,600)+
+  CardAvatar(210,210,1.1,'li','smile')+CardAvatar(470,210,1.1,'wa','smile')+
+  T(340,340,'同年出生、好友重疊（孟浩然、玉真公主）',20,INK,600)+
+  L(100,380,[
+    '【傳聞】王維 21 歲彈〈鬱輪袍〉獲玉真公主青睞中狀元；',
+    '【史料】李白住終南山寫〈玉真仙人詞〉求見卻未逢其時。',
+    '兩人一生無一首互相贈詩或直接對話紀錄！'
+  ],16,28,MUTE,400,'left')+
+  Badge(340,510,'【推論】「情敵說」純屬網友腦補，圈子與性格不同','#a82024','#fff')+
+  FooterTag('【史料】兩人背景　【推論】零互動原因')
+),'李白與王維同時代零互動，比較兩人在長安交集與網友腦補。');
+
+// 21. 床下事件
+add('床下事件',Frame(
+  T(340,70,'唐代最尷尬又令人心酸的一幕',22,MUTE,600)+
+  '<rect x="100" y="130" width="480" height="150" rx="16" fill="#fff" stroke="#e8dfcb" stroke-width="2"/>'+
+  T(340,165,'【傳聞】《新唐書》記載：皇上突襲訪問王維住宅！',18,INK,700)+
+  CardAvatar(220,230,.8,'me','worry')+CardAvatar(420,230,.8,'wa','smile')+
+  T(340,310,'孟浩然嚇得躲進床底！王維據實以告，玄宗請他出來朗誦。',17,DK.me,600)+
+  L(100,360,[
+    '【史料】孟浩然念出：〈歲暮歸南山〉「不才明主棄，多病故人疏」',
+    '【傳聞】唐玄宗不悅答：「卿自不求仕，朕何嘗棄卿？」隨後放還。'
+  ],16,30,INK,400,'left')+
+  FooterTag('【傳聞】新唐書軼事')
+),'講述孟浩然躲王維床下，吟詩「不才明主棄」被玄宗吐槽的傳聞。');
+
+// 22. 亂世之後
+add('亂世之後',Frame(
+  T(340,70,'安史之亂與四人結局',22,MUTE,600)+
+  L(90,140,[
+    '李白：捲入永王事件流放夜郎，762 年病逝（62歲）',
+    '杜甫：顛沛流離寫下無數史詩，770 年病逝湘江（59歲）',
+    '王維：被迫接受偽職，以〈凝碧池〉詩得免大罪，761年卒',
+    '孟浩然：740 年早逝於安史之亂前（背疽發作）'
+  ],16,34,INK,400,'left')+
+  Badge(340,460,'「死別已吞聲，生別常惻惻」——杜甫〈夢李白〉','#7a2e22','#fff')+
+  FooterTag('【史料】安史之亂與四人終局')
+),'總結安史之亂後四位詩人的命運結局。');
+
+// 23. 總而言之
+add('總而言之',Frame(
+  T(340,80,'愛恨交織的盛唐朋友圈',22,MUTE,600)+
+  '<g transform="translate(0,20)">'+
+    CardAvatar(110,210,.8,'du','smile')+CardAvatar(250,210,.8,'li','smile')+CardAvatar(390,210,.8,'me','flat')+CardAvatar(530,210,.8,'wa','smile')+
+    Arrow(150,195,210,195,'#7a2e22')+Arrow(290,195,350,195,'#7a2e22')+Arrow(430,195,490,195,'#7a2e22')+
+  '</g>'+
+  L(110,340,[
+    '杜甫崇拜李白，李白崇拜孟浩然，孟浩然與王維互為知音。',
+    '單向箭頭代表崇拜與寫詩，不代表對方有等值回應！',
+    '這是一場跨越千年的文學單向奔赴與盛唐浪漫。'
+  ],17,30,INK,400,'left')+
+  FooterTag('總結')
+),'總結全課四人單向景仰鏈。');
+
+// 24. 關係圖
+add('關係圖',Frame(
+  T(340,70,'盛唐詩人社交關係網',24,INK,700)+
+  CardAvatar(340,150,.8,'li','smile')+T(340,210,'李白（浪漫詩仙）',16,DK.li,600)+
+  CardAvatar(120,360,.8,'me','flat')+T(120,420,'孟浩然（田園前輩）',16,DK.me,600)+
+  CardAvatar(560,360,.8,'du','smile')+T(560,420,'杜甫（年下迷弟）',16,DK.du,600)+
+  CardAvatar(340,460,.8,'wa','smile')+T(340,520,'王維（佛系詩佛）',16,DK.wa,600)+
+  Arrow(495,335,395,185,'#a82024')+T(500,240,'迷弟崇拜',14,'#a82024',600)+
+  Arrow(265,185,165,335,'#a82024')+T(170,240,'瘋狂點讚',14,'#a82024',600)+
+  Arrow(200,420,280,480,'#236b2d')+T(210,480,'田園知音',14,'#236b2d',600)+
+  FooterTag('關係總結網')
+),'四人互動關係網路圖。');
+
+// 25. 討論題
+add('討論題',Frame(
+  T(340,70,'課堂討論與思考',26,INK,700)+
+  L(50,135,[
+    '1. 寫詩算不算「已讀」？杜甫寫十餘首、李白回兩首，誰更重視這段友情？',
+    '2. 課堂提到的情節，哪些是【史料】、哪些是【傳聞】、哪些是【戲說】？',
+    '3. 如果盛唐四人創一個 LINE 群組，誰會是那個永遠「已讀不回」的人？',
+    '4. 李白一生未曾參加科舉，為什麼依然能一躍成為盛唐詩仙？'
+  ],16,36,INK,400,'left')+
+  Badge(340,510,'課後活動：關係圖填空・詩句配對・史料搶答','#5c4a52','#fff')+
+  FooterTag('課堂互動')
+),'列出給國中生思考討論的四大題型。');
+
+// 26. 參考資料
+add('參考資料',Frame(
+  T(340,70,'文獻與資料來源',26,INK,700)+
+  L(50,130,[
+    '• 香港公共圖書館《文人的友誼》EP1 文字稿',
+    '• 《新唐書》孟浩然傳、《唐摭言》卷十一',
+    '• 《唐才子傳》卷二（王維、孟浩然）',
+    '• 《舊唐書》李白傳、杜甫傳；施蟄存《盛唐詩話》',
+    '• 中央社報導〈已讀不回？網民：這種友情叫杜甫與李白〉',
+    '• 澎湃新聞（王磊《野史未必假》）〈李白為什麼不參加科舉〉'
+  ],14,30,INK,400,'left')+
+  T(340,530,'唐詩原文為公版著作，趣味解讀已標註【戲說】與【傳聞】。',15,MUTE)+
+  FooterTag('參考文獻')
+),'參考資料與文獻列表。');
+
+function pad(n){return (n<10?'0':'')+n;}
+function $(x){return document.getElementById(x);}
+
+function showMsg(text) {
+  $('msg-text').textContent = text;
+  $('msg-modal').style.display = 'flex';
+}
+$('msg-close').onclick = function() {
+  $('msg-modal').style.display = 'none';
+};
+
+var N=S.length, cur=0;
+var html='';
+for(var i=0;i<N;i++){
+  html+='<div class="cd"><div class="hd"><span>'+pad(i+1)+'. '+S[i].t+'</span><button data-d="'+i+'">下載 PNG</button></div><div class="sv" data-o="'+i+'" data-r="'+i+'"></div><p class="nt">'+S[i].n+'</p></div>';
+}
+$('g').innerHTML=html;
+(function(){var els=document.querySelectorAll('[data-r]');
+function fill(e){var k=e.getAttribute('data-r');if(k!==null){e.innerHTML=S[+k].svg;e.removeAttribute('data-r');}}
+if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){fill(en.target);io.unobserve(en.target);}});},{rootMargin:'400px 0px'});els.forEach(function(e){io.observe(e);});}
+else{els.forEach(fill);}})();
+
+function toPng(i){return new Promise(function(res){
+var img=new Image();
+var url=URL.createObjectURL(new Blob([S[i].svg],{type:'image/svg+xml;charset=utf-8'}));
+img.onload=function(){
+var c=document.createElement('canvas');c.width=1080;c.height=1080;
+var x=c.getContext('2d');x.fillStyle='#fcf9f2';x.fillRect(0,0,1080,1080);x.drawImage(img,0,0,1080,1080);
+URL.revokeObjectURL(url);
+c.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='slide_'+pad(i+1)+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href);},3000);res();},'image/png');
+};
+img.onerror=function(){showMsg('此瀏覽器無法直接轉成 PNG，請改用螢幕截圖儲存圖片。');res();};
+img.src=url;});}
+
+var NAR=["各位同學，今天我們要來聊大唐四人行：李白、杜甫、孟浩然、王維。先問大家一個問題：如果唐朝有私訊，誰會是那個已讀不回的人？先猜猜看，等一下我們再來揭曉。", "先來聽一個假趣事：李白很常考試不及格，因為他字太白，所以看不到考題。這當然是網路諧音梗，是戲說喔！真相是，李白一生根本沒有進過考場。原因說法不一，有人說是商人之子的身份受限制，也有人說是家族曾因罪遷徙。他走的是名流舉薦的路線。", "接下來是成分分析。詩仙李白的靈魂組成：美酒百分之七十，明月百分之二十，劍術百分之十，加起來剛好一百。這是戲說，用來形容他豪飲狂歌、浪漫至極的性格。", "二十多歲的李白，在襄陽認識了大他一輪的孟浩然。他寫了一首〈贈孟浩然〉：「吾愛孟夫子，風流天下聞。」直接大方告白，是不是很像追星的迷弟呢？", "在唐代的詩詞圈，互相贈詩是很大的社交傳統，至於回不回詩，又是另一回事。專家提醒，沒有留下回詩，不等於冷漠或沒交情。古人也常常透過口頭、書信或見面來切磋交流。", "李白送給孟浩然的，是千古名篇〈黃鶴樓送孟浩然之廣陵〉：「故人西辭黃鶴樓，煙花三月下揚州。孤帆遠影碧空盡，唯見長江天際流。」他在樓上看著船影消失，久久捨不得離開。但是，孟浩然的詩集裡，卻找不出明確回贈給李白的詩。這是單向奔赴，說他已讀不回，則是戲說喔。", "孟浩然真的一首都沒有回給李白嗎？這一點要標上待查證：現存的孟浩然集裡，沒有看到明確回贈李白的作品。可能是作品遺失，也可能是當面口頭回應，這只是推論。", "新成員登場！這位是杜子美，也就是後來被稱為詩聖的杜甫，生活在公元七一二年到七七零年。遇見李白的時候，他還只是一位默默無聞的年輕後進。", "公元七四四年，在洛陽，三十三歲的杜甫，遇見了四十五歲的李白。一個是追星的粉絲，一個是當紅的明星，開啟了文學史上最傳奇的一段情誼。", "李白和杜甫，一生只見面三次！路線是：七四四年洛陽相遇，接著在梁宋同遊，還有高適同行，七四五年又在齊魯再聚。杜甫寫過：「醉眠秋共被，攜手日同行」，兩個人好到蓋同一條被子！還有一個趣事：李白帶杜甫去找范居士，結果迷路，摔進蒼耳叢，還寫詩怪蒼耳欺負他。", "杜甫真的超級想念李白！他內心小劇場大概是：白兄白兄白兄，你現在到底在哪裡呀！這是戲說，不過這份真情實感，確實寫進了他十多首詩裡。", "杜甫在〈春日憶李白〉說：「白也詩無敵，飄然思不群。」在〈天末懷李白〉又說：「世人皆欲殺，吾意獨憐才。」當全世界都在質疑李白的時候，只有杜甫挺身相惜。專家也提醒，互贈詩是社交傳統，感情不能只用數量來衡量。", "再來是杜甫的成分分析。國計民生百分之六十，想念李白百分之二十五，憂國憂民百分之十五，合起來是一百。這是戲說，形容這位寫實派詩聖的內心世界。", "我們來欣賞杜甫的〈贈李白〉。詩句請看畫面，大家一起念一遍。白話意譯是：我在洛陽生活困頓，厭倦官場，想要採藥修道，卻缺少錢。聽說李兄離開宮廷去尋仙問道，我期待能跟著你一起去梁宋採仙草！", "杜甫寫給李白的詩，數量驚人。有〈贈李白〉兩首、〈與李十二白同尋范十隱居〉、〈飲中八仙歌〉、〈冬日有懷李白〉、〈春日憶李白〉、〈天末懷李白〉、〈夢李白二首〉等等。數量要特別說明：主流說法是專寫李白的約十一首，講義寫二十幾首，是把內文提到或詩名相關的都算進去，兩種說法可以並列。", "那李白回了什麼呢？明確回贈杜甫的詩，大約有兩首：〈魯郡東石門送杜二甫〉和〈沙丘城下寄杜甫〉。另外有一首傳為李白所寫的〈戲贈杜甫〉，真偽有爭議，多數人認為是後人偽託，所以要標上存疑。", "〈魯郡東石門送杜二甫〉是李白送別杜甫的詩，名句是：「飛蓬各自遠，且盡手中杯。」意思是，我們就像隨風飄散的蓬草，各自遠去，那就先乾了手中這杯酒吧。七四五年的齊魯告別，是兩人一生中最後一次見面。", "〈沙丘城下寄杜甫〉裡有一句：「思君若汶水，浩蕩寄南征。」李白把對杜甫的思念，化成浩浩蕩蕩的汶水，一路向南陪伴著他。", "現在換孟浩然和王維。他們在長安聯句，孟浩然吟出「微雲淡河漢，疏雨滴梧桐」，驚豔全場。孟浩然落榜離開長安時，寫下：「知音世所稀。」他過世之後，王維寫了〈哭孟浩然〉：「故人不可見，漢水日東流。」傳聞王維還把孟浩然的畫像畫在刺史亭，也就是後來的浩然亭。這是知音的故事，悲劇結局則是戲說。", "李白和王維，同一年出生，又有重疊的朋友，像是孟浩然、玉真公主。但是，兩個人一生沒有留下任何互相贈詩或直接對話的紀錄！網路上說的情敵說，只是網友腦補，推論是兩人的圈子與性格不同。", "接下來是尷尬的床下事件，這是傳聞，出自《新唐書》：有一次皇上突然到王維家拜訪，孟浩然嚇得躲到床底下！王維只好據實以告，玄宗就請他出來朗誦詩。孟浩然念出：「不才明主棄，多病故人疏。」玄宗不高興地說：「你自己不求官，我哪裡有拋棄你？」隨後就把他放回去了。", "安史之亂以後，四個人的結局是：李白捲入永王事件，被流放夜郎，七六二年病逝，享年六十二歲。杜甫顛沛流離，寫下許多史詩，七七零年病逝在湘江，享年五十九歲。王維被迫接受偽職，因為一首〈凝碧池〉詩，免去大罪，七六一年過世。孟浩然則在七四零年，安史之亂之前就早逝了。杜甫在〈夢李白〉寫下：「死別已吞聲，生別常惻惻。」", "總而言之，杜甫崇拜李白，李白崇拜孟浩然，孟浩然和王維互為知音。注意，單向的箭頭代表崇拜與寫詩，不代表對方有同樣的回應。這是一場跨越千年的文學單向奔赴，也是盛唐的浪漫。", "這是四個人的社交關係圖：杜甫是李白的年下迷弟，李白瘋狂為孟浩然點讚，孟浩然和王維是田園知音。大家可以對照這張圖，複習剛剛的故事。", "最後是課堂討論。第一，寫詩算不算已讀？杜甫寫十多首，李白只回兩首，誰更重視這段友情？第二，剛剛的情節，哪些是史料、哪些是傳聞、哪些是戲說？第三，如果盛唐四人創一個LINE群組，誰會是永遠已讀不回的人？第四，李白一生沒有參加科舉，為什麼還能成為盛唐詩仙？課後還有活動：關係圖填空、詩句配對、史料搶答。", "這份簡報的參考資料，包括香港公共圖書館《文人的友誼》文字稿、《新唐書》、《唐摭言》、《唐才子傳》、《舊唐書》，以及施蟄存的《盛唐詩話》等。唐詩原文是公版著作，有趣的解讀，已經標註為戲說與傳聞。謝謝大家！"];
+var synth=window.speechSynthesis||null,voice=null,nOn=true,auto=true,tok=0,timer=null;
+function pickVoice(){if(!synth)return;var vs=synth.getVoices(),f=null,i,l;voice=null;
+for(i=0;i<vs.length;i++){l=(vs[i].lang||'').replace('_','-').toLowerCase();if(l==='zh-tw'){f=vs[i];break;}}
+voice=f;var m=$('vs');
+if(!synth){m.textContent='此瀏覽器不支援語音旁白，請看畫面下方文字。';}
+else if(!voice&&vs.length){m.textContent='找不到「國語（台灣）」語音。iPad 請到 設定 → 輔助使用 → 朗讀內容 → 聲音 → 中文 → 國語（台灣）下載後，重新整理頁面。';}
+else if(voice){m.textContent='';}}
+if(synth){pickVoice();if(synth.addEventListener)synth.addEventListener('voiceschanged',pickVoice);else synth.onvoiceschanged=pickVoice;}
+function stopSpeak(){tok++;clearTimeout(timer);if(synth){try{synth.cancel();}catch(e){}}}
+function speak(i){
+if(!synth||!nOn)return;var my=++tok;clearTimeout(timer);
+var parts=(NAR[i]||'').match(/[^。！？；]+[。！？；」]*/g)||[];var k=0;
+function next(){if(my!==tok)return;
+if(k>=parts.length){if(auto&&i<N-1&&$('ov').style.display==='flex'){timer=setTimeout(function(){if(my===tok)show(i+1);},800);}return;}
+var u=new SpeechSynthesisUtterance(parts[k++]);u.lang='zh-TW';if(voice)u.voice=voice;u.rate=0.95;u.pitch=1;
+u.onend=next;u.onerror=function(){if(my===tok)setTimeout(next,50);};
+synth.speak(u);}
+if(synth.speaking||synth.pending){synth.cancel();setTimeout(next,80);}else{next();}}
+function show(i){cur=(i+N)%N;$('ov').style.display='flex';$('ovs').innerHTML=S[cur].svg;$('ovn').textContent=(cur+1)+' / '+N;$('ovt').textContent=NAR[cur];stopSpeak();speak(cur);}
+function closeOv(){$('ov').style.display='none';stopSpeak();}
+function syncBtns(){$('osp').textContent='🔊 旁白：'+(nOn?'開':'關');$('osp').className=nOn?'on':'';$('oau').textContent='自動換頁：'+(auto?'開':'關');$('oau').className=auto?'on':'';}
+$('osp').onclick=function(){nOn=!nOn;syncBtns();if(nOn)speak(cur);else stopSpeak();};
+$('oau').onclick=function(){auto=!auto;syncBtns();};
+syncBtns();
+(function(){var x0=null;var o=$('ov');
+o.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+o.addEventListener('touchend',function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>60){if(dx<0)show(cur+1);else show(cur-1);}},{passive:true});})();
+document.addEventListener('visibilitychange',function(){if(document.hidden)stopSpeak();});
+$('g').addEventListener('click',function(e){
+var d=e.target.getAttribute('data-d');
+if(d!==null){toPng(parseInt(d,10));return;}
+var n=e.target;while(n&&n!==this){if(n.getAttribute&&n.getAttribute('data-o')!==null){show(parseInt(n.getAttribute('data-o'),10));return;}n=n.parentNode;}
+});
+$('bplay').onclick=function(){show(0);};
+$('ball').onclick=async function(){
+  showMsg('開始下載全部 26 張簡報 PNG，請稍候...');
+  for(var i=0;i<N;i++){await toPng(i);await new Promise(function(r){setTimeout(r,350);});}
+};
+$('op').onclick=function(){show(cur-1);};
+$('on').onclick=function(){show(cur+1);};
+$('od').onclick=function(){toPng(cur);};
+$('ox').onclick=closeOv;
+document.addEventListener('keydown',function(e){
+if($('ov').style.display!=='flex')return;
+if(e.key==='ArrowRight')show(cur+1);
+else if(e.key==='ArrowLeft')show(cur-1);
+else if(e.key==='Escape')closeOv();
+});
+</script>
+</body>
+</html>
